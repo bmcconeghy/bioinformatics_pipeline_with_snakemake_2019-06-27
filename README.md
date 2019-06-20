@@ -26,6 +26,6 @@ Installation of miniconda3 is necessary to create the virtual environment we wil
 3. Once the download has finished, run: `bash Miniconda3-latest-Linux-x86_64.sh` and follow the on-screen instructions. Press `enter` when asked where to install miniconda3 (or specify location).
 
 ## Setting up snakemake
-4. Create a new directory under your home directory: `mkdir snakemake-tutorial`
-5. Change to newly created directory: `cd snakemake-tutorial`
-6. 
+1. Create a new directory under your home directory: `mkdir snakemake-tutorial`
+2. Change to newly created directory: `cd snakemake-tutorial`
+3. 
