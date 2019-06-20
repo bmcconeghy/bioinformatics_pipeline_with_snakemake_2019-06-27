@@ -8,16 +8,16 @@ Most of this course is based on the [snakemake tutorial](https://snakemake.readt
 ## Prerequisites
 Familiarity with Python, Bash, and some bioinformatics tools (cutadapt, bwa, samtools, etc.).
 Software:
-*Python ≥3.5
-*Snakemake 5.2.3
-*BWA 0.7.12
-*SAMtools 1.3.1
-*Pysam 0.15.0
-*BCFtools 1.3.1
-*Graphviz 2.38.0
-*Jinja2 2.10
-*NetworkX 2.1
-*Matplotlib 2.2.3
+* Python ≥3.5
+* Snakemake 5.2.3
+* BWA 0.7.12
+* SAMtools 1.3.1
+* Pysam 0.15.0
+* BCFtools 1.3.1
+* Graphviz 2.38.0
+* Jinja2 2.10
+* NetworkX 2.1
+* Matplotlib 2.2.3
 
 ## Getting Started
 Installation of miniconda3 is necessary to create the virtual environment we will be working in.
