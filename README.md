@@ -3,11 +3,11 @@ Introduction to snakemake for processing biological sequencing data.
 ## About the lesson
 This course is an introduction to using the Snakemake workflow management system to create reproducible and scalable bioinformatics pipelines. Workflows are written in Python and can be seamlessly scaled to server, cluster, grid and cloud environments, without the need to modify the workflow definition. In this course, we will be writing a Snakemake pipeline that takes DNA reads as input and runs basic QC on them, maps them to a genome of interest, sorts them, indexes them, and calls genomic variants.
 
-Most of this course is based on the [snakemake tutorial](https://snakemake.readthedocs.io/en/stable/tutorial/tutorial.html) found on snakemake's readthedocs page
+Most of this course is based on the [snakemake tutorial](https://snakemake.readthedocs.io/en/stable/tutorial/tutorial.html) found on snakemake's readthedocs page.
 
 ## Prerequisites
 Familiarity with Python, Bash, and some bioinformatics tools (cutadapt, bwa, samtools, etc.).
-Software:
+Software installed in conda environment:
 * Python ≥3.5
 * Snakemake 5.2.3
 * BWA 0.7.12
@@ -28,4 +28,8 @@ Installation of miniconda3 is necessary to create the virtual environment we wil
 ## Setting up snakemake
 1. Create a new directory under your home directory: `mkdir snakemake-tutorial`
 2. Change to newly created directory: `cd snakemake-tutorial`
-3. 
+3. Clone this workshop's repo: `git clone `
+4. Add the bioconda and conda-forge channels: `conda config --add channels bioconda conda-forge`
+5. Use the environment file: `conda create -f bioinfo_pipeline.yaml`
+Install all necessary packages for this workshop: `conda create -n smk_523 snakemake=5.4.2 bwa=0.7.12 samtools=1.3.1 pysam=0.15.0 bcftools=1.3.1 graphviz=2.38.0 jinja2=2.10 networkx=2.1 matplotlib=2.2.3`
+5. a. If step 4 doesn't work,
