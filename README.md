@@ -19,13 +19,13 @@ Software installed in conda environment:
 * NetworkX 2.1
 * Matplotlib 2.2.3
 
-## Getting Started (Cedar)
+## (Option A) Getting Started - Cedar
 Installation of miniconda3 is necessary to create the virtual environment we will be working in.
 1. Log into the Cedar cluster using the provided credentials.
 2. Run the following on the command line: `wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh`.
 3. Once the download has finished, run: `bash Miniconda3-latest-Linux-x86_64.sh` and follow the on-screen instructions. Press `enter` when asked where to install miniconda3 (or specify location).
 
-## Getting Started (Local)
+## (Option B) Getting Started - Local
 If Cedar is not working, one can follow along by running this locally as well. For Mac OS X, skip this section, for Windows 10 users, do the following:
 1. Follow the instructions on [this website](https://itsfoss.com/install-bash-on-windows/).
 2. Essentially, what the above website will say is to first enable the linux subsystem by running this command: `Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux` in a administrator PowerShell session.
@@ -63,4 +63,18 @@ rule bwa_map:
 6. When a workflow is executed, Snakemake tries to generate the given target files. These can be specified via the command line. Try running: `snakemake -np mapped_reads/A.bam`
 7. This produces the snakemake output as if it were run, but without actually running it; a so called 'dry-run'.
 8. Now, re-run the above command without the `-np` parameters: `snakemake mapped_reads/A.bam`
-9. 
+
+## Step 2: Generalizing the mapping rule
+1. Snakemake allows for generalizations for the inputs and outputs by way of **wildcards**. These are denoted withing curly braces {}.
+2. We will now simply replace the `A` with `{sample}. So the resulting code will look like:
+```
+rule bwa_map:
+    input:
+        "data/genome.fa",
+        "data/samples/{sample}.fastq"
+    output:
+        "mapped_reads/{sample}.bam"
+    shell:
+        "bwa mem {input} | samtools view -Sb - > {output}"
+```
+
