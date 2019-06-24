@@ -9,7 +9,7 @@ Most of this course is based on the [snakemake tutorial](https://snakemake.readt
 Familiarity with Python, Bash, and some bioinformatics tools (cutadapt, bwa, samtools, etc.).
 Software installed in conda environment:
 * Python ≥3.5
-* Snakemake 5.2.3
+* Snakemake 5.4.2
 * BWA 0.7.12
 * SAMtools 1.3.1
 * Pysam 0.15.0
@@ -28,8 +28,13 @@ Installation of miniconda3 is necessary to create the virtual environment we wil
 ## Setting up snakemake
 1. Create a new directory under your home directory: `mkdir snakemake-tutorial`
 2. Change to newly created directory: `cd snakemake-tutorial`
-3. Clone this workshop's repo: `git clone `
+3. Clone this workshop's repo: `git clone https://github.com/bmcconeghy/bioinformatics_pipeline_with_snakemake_2019-06-27.git`
 4. Add the bioconda and conda-forge channels: `conda config --add channels bioconda conda-forge`
-5. Use the environment file: `conda create -f bioinfo_pipeline.yaml`
-Install all necessary packages for this workshop: `conda create -n smk_523 snakemake=5.4.2 bwa=0.7.12 samtools=1.3.1 pysam=0.15.0 bcftools=1.3.1 graphviz=2.38.0 jinja2=2.10 networkx=2.1 matplotlib=2.2.3`
-5. a. If step 4 doesn't work,
+5. Use the environment file to download and install all necessary packages for this workshop into a conda environment: `conda create -f bioinfo_pipeline.yaml`. This may take a few minutes (total download size is ~265MB).
+5. a. If the previous step doesn't work, run `conda create -n smk_523 snakemake=5.4.2 bwa=0.7.12 samtools=1.9 pysam=0.15.0 bcftools=1.9 graphviz=2.38.0 jinja2=2.10 networkx=2.1 matplotlib=2.2.3`
+6. Once the installation is complete, activate the environment: `conda activate smk_523`. You now have access to all the packages installed!
+7. The data we will be using is stored in the `data` directory.
+
+## Step 1: Mapping reads
+1. We will begin by writing a rule to map Illumina reads (single-end) to a reference genome.
+2. 
