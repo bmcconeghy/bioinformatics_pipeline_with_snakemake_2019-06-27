@@ -8,12 +8,12 @@ Most of this course is based on the [snakemake tutorial](https://snakemake.readt
 ## Prerequisites
 Familiarity with Python, Bash, and some bioinformatics tools (cutadapt, bwa, samtools, etc.).
 Software installed in conda environment:
-* Python ≥3.5
+* Python ≥3.6
 * Snakemake 5.4.2
 * BWA 0.7.12
-* SAMtools 1.3.1
+* SAMtools 1.9
 * Pysam 0.15.0
-* BCFtools 1.3.1
+* BCFtools 1.9
 * Graphviz 2.38.0
 * Jinja2 2.10
 * NetworkX 2.1
@@ -37,4 +37,15 @@ Installation of miniconda3 is necessary to create the virtual environment we wil
 
 ## Step 1: Mapping reads
 1. We will begin by writing a rule to map Illumina reads (single-end) to a reference genome.
-2. 
+2. To do so, we will use the widely used tool, BWA, specifically its MEM subcommand.
+3. In the working directory (snakmake-tutorial), create a new file called `Snakefile`. I like using VS Code as an editor, but you may use what you wish. On UNIX servers though, `vim` is ubiquitous.
+4. In the Snakefile, define the following rule:
+  `rule bwa_map:
+    input:
+        "data/genome.fa",
+        "data/samples/A.fastq"
+    output:
+        "mapped_reads/A.bam"
+    shell:
+        "bwa mem {input} | samtools view -Sb - > {output}"`
+5. The above code is a basic version of a Snakemake rule. It has a name `bwa_map`, `inputs`, `ouptputs`, and a `shell` directive.
