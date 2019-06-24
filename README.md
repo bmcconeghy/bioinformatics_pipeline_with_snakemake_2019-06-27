@@ -19,20 +19,29 @@ Software installed in conda environment:
 * NetworkX 2.1
 * Matplotlib 2.2.3
 
-## Getting Started
+## Getting Started (Cedar)
 Installation of miniconda3 is necessary to create the virtual environment we will be working in.
-1. Log into the Cedar (or Graham) cluster using the provided credentials.
-2. Run the following on the command line: `wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh`
+1. Log into the Cedar cluster using the provided credentials.
+2. Run the following on the command line: `wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh`.
 3. Once the download has finished, run: `bash Miniconda3-latest-Linux-x86_64.sh` and follow the on-screen instructions. Press `enter` when asked where to install miniconda3 (or specify location).
 
+## Getting Started (Local)
+If Cedar is not working, one can follow along by running this locally as well. For Mac OS X, skip this section, for Windows 10 users, do the following:
+1. Follow the instructions on [this website](https://itsfoss.com/install-bash-on-windows/).
+2. Essentially, what the above website will say is to first enable the linux subsystem by running this command: `Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux` in a administrator PowerShell session.
+3. Restart your computer.
+4. Install Ubuntu from the Microsoft store.
+5. Follow steps 2 and 3 from 'Getting Started (Cedar)'.
+6. Say yes to conda initialization and open a new session for the settings to apply.
+
 ## Setting up snakemake
-1. Create a new directory under your home directory: `mkdir snakemake-tutorial`
-2. Change to newly created directory: `cd snakemake-tutorial`
-3. Clone this workshop's repo: `git clone https://github.com/bmcconeghy/bioinformatics_pipeline_with_snakemake_2019-06-27.git`
-4. Add the bioconda and conda-forge channels: `conda config --add channels bioconda conda-forge`
-5. Use the environment file to download and install all necessary packages for this workshop into a conda environment: `conda create -f bioinfo_pipeline.yaml`. This may take a few minutes (total download size is ~265MB).
-5. a. If the previous step doesn't work, run `conda create -n smk_523 snakemake=5.4.2 bwa=0.7.12 samtools=1.9 pysam=0.15.0 bcftools=1.9 graphviz=2.38.0 jinja2=2.10 networkx=2.1 matplotlib=2.2.3`
-6. Once the installation is complete, activate the environment: `conda activate smk_542`. You now have access to all the packages installed!
+1. Clone this workshop's repo: `git clone https://github.com/bmcconeghy/bioinformatics_pipeline_with_snakemake_2019-06-27.git`.
+2. Change to newly created directory: `cd bioinformatics_pipeline_with_snakemake_2019-06-27`.
+3. Add the bioconda and conda-forge channels: `conda config --add channels bioconda` and `conda --add channels conda-forge`.
+4. Use the environment file to download and install all necessary packages for this workshop into a conda environment: `conda create -f smk_542_env.yaml`. This may take a few minutes (total download size is ~265MB).
+4. a. If the previous step did not work, run: `conda create -n smk_542 snakemake=5.4.2 bwa=0.7.12 samtools=1.9 pysam=0.15.0 bcftools=1.9 graphviz=2.38.0 jinja2=2.10 networkx=2.1 matplotlib=2.2.3`
+5. Once the installation is complete, activate the environment: `conda activate smk_542`. You now have access to all the packages installed!
+6. Unzip the tarball: `tar -xzvf data.tar.gz`
 7. The data we will be using is stored in the `data` directory.
 
 ## Step 1: Mapping reads
