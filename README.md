@@ -40,12 +40,12 @@ Installation of miniconda3 is necessary to create the virtual environment we wil
 2. To do so, we will use the widely used tool, BWA, specifically its MEM subcommand.
 3. In the working directory (snakmake-tutorial), create a new file called `Snakefile`. I like using VS Code as an editor, but you may use what you wish. On UNIX servers though, `vim` is ubiquitous.
 4. In the Snakefile, define the following rule:
-  `rule bwa_map:
-    input:
-        "data/genome.fa",
-        "data/samples/A.fastq"
-    output:
-        "mapped_reads/A.bam"
-    shell:
-        "bwa mem {input} | samtools view -Sb - > {output}"`
+    rule bwa_map:
+        input:
+            "data/genome.fa",
+            "data/samples/A.fastq"
+        output:
+            "mapped_reads/A.bam"
+        shell:
+            "bwa mem {input} | samtools view -Sb - > {output}"`
 5. The above code is a basic version of a Snakemake rule. It has a name `bwa_map`, `inputs`, `ouptputs`, and a `shell` directive.
