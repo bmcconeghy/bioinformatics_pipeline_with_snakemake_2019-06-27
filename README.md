@@ -32,7 +32,7 @@ Installation of miniconda3 is necessary to create the virtual environment we wil
 4. Add the bioconda and conda-forge channels: `conda config --add channels bioconda conda-forge`
 5. Use the environment file to download and install all necessary packages for this workshop into a conda environment: `conda create -f bioinfo_pipeline.yaml`. This may take a few minutes (total download size is ~265MB).
 5. a. If the previous step doesn't work, run `conda create -n smk_523 snakemake=5.4.2 bwa=0.7.12 samtools=1.9 pysam=0.15.0 bcftools=1.9 graphviz=2.38.0 jinja2=2.10 networkx=2.1 matplotlib=2.2.3`
-6. Once the installation is complete, activate the environment: `conda activate smk_523`. You now have access to all the packages installed!
+6. Once the installation is complete, activate the environment: `conda activate smk_542`. You now have access to all the packages installed!
 7. The data we will be using is stored in the `data` directory.
 
 ## Step 1: Mapping reads
@@ -50,4 +50,8 @@ rule bwa_map:
     shell:
         "bwa mem {input} | samtools view -Sb - > {output}"
 ```
-5. The above code is a basic version of a Snakemake rule. It has a name `bwa_map`, `inputs`, `ouptputs`, and a `shell` directive.
+5. The above code is a basic version of a Snakemake rule. It has a name, inputs, ouptput, and a shell directive.
+6. When a workflow is executed, Snakemake tries to generate the given target files. These can be specified via the command line. Try running: `snakemake -np mapped_reads/A.bam`
+7. This produces the snakemake output as if it were run, but without actually running it; a so called 'dry-run'.
+8. Now, re-run the above command without the `-np` parameters: `snakemake mapped_reads/A.bam`
+9. 
