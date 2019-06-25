@@ -117,4 +117,26 @@ rule samtools_index:
 2. At this point in time, since we have 3 steps in our pipeline, now would be a great time to create a DAG to visualize what is happening in a graphical way: `snakemake --dag sorted_reads/{A,B}.bam.bai | dot -Tsvg > dag.svg`.
 3. The above command uses Graphviz's dot command to process the ouput from snakemake (using its `--dag` argument) into an svg file.
 4. Once you've run this command, you can open this file to take a look. It should look something like this:
-![DAG with 3 rules](https://github.com/bmcconeghy/bioinformatics_pipeline_with_snakemake_2019-06-27/blob/master/examples/dag.svg)
+![DAG with 3 rules](https://github.com/bmcconeghy/bioinformatics_pipeline_with_snakemake_2019-06-27/blob/master/examples/dag_3rules.svg)
+5. Notice that samples for which rules have been run have a dotted line as their outline.
+
+## Step 5: Calling genomic variants
+This next step will aggregate the mapped reads from all samples and jointly call genomic variants on them. This will use samtools and bcftools.
+1. We will use a built in function of snakemake called `expand`, in conjunction with a list of samples (instead of generalized wilcards). This is similar to the functionality of formatted strings in python.
+2. At the very top of your Snakefile, add the list: `SAMPLES = ["A", "B"]`.
+3. Now that we have defined what samples will be run through the pipeline, we can write the `bcftools_call` rule:
+```
+rule bcftools_call:
+    input:
+        fa="data/genome.fa",
+        bam=expand("sorted_reads/{sample}.bam", sample=SAMPLES),
+        bai=expand("sorted_reads/{sample}.bam.bai", sample=SAMPLES)
+    output:
+        "calls/all.vcf"
+    shell:
+        "samtools mpileup -g -f {input.fa} {input.bam} | "
+        "bcftools call -mv - > {output}"
+```
+4. Notice that this rule has **named** inputs and how they get used in the `shell` directive. Also, note that you can combine named and not named input and output files in the same rule (although the positional ones must come first; equivalent to python functions with keyword arguments).
+5. See if you can produce a DAG that is equivalent to this one:
+![DAG with bcftools](https://github.com/bmcconeghy/bioinformatics_pipeline_with_snakemake_2019-06-27/blob/master/examples/dag_bcftools.svg)
