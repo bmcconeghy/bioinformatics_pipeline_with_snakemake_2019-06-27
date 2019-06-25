@@ -142,4 +142,34 @@ rule bcftools_call:
 ![DAG with bcftools](https://github.com/bmcconeghy/bioinformatics_pipeline_with_snakemake_2019-06-27/blob/master/examples/dag_bcftools.svg)
 
 ## Step 6: Custom scripts
-Usually, a workflow not only consists of invoking various tools, but also contains custom code to e.g. calculate summary statistics or create plots.
+Usually, a workflow not only consists of invoking various tools, but also contains custom code to e.g. calculate summary statistics or create plots. Although snakemake allows you to run python code directly with the `run` directive (instead of `shell`), it is  usually reasonable to move such logic into separate scripts. For this, we will use the `script` directive.
+1. Add the following rule to your Snakefile:
+```
+rule plot_quals:
+    input:
+        "calls/all.vcf"
+    output:
+        "plots/quals.svg"
+    script:
+        "scripts/plot-quals.py"
+```
+2. This rule will generate a histogram of the quality scores that have been assigned to the variant calls in the `calls/all.vcf` file.
+3. The actual script will be stored in a subdirectory called `scripts`. Create this directory: `mkdir scripts`. Note: script paths are always relative to the Snakefile.
+4. Create the file `plot-quals.py` in the `scripts` directory with the following code:
+```
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from pysam import VariantFile
+
+quals = [record.qual for record in VariantFile(snakemake.input[0])]
+plt.hist(quals)
+
+plt.savefig(snakemake.output[0])
+```
+5. Although there are other strategies to invoke separate scripts from your workflow (e.g., invoking them via shell commands), the benefit of this is obvious: the script logic is separated from the workflow logic (and can be even shared between workflows), but boilerplate code like the parsing of command line arguments is unnecessary.
+6. You can also run R scripts this way as well, although the syntax is slightly different.
+
+## Step 7: Adding a target rule
+
+1. 
