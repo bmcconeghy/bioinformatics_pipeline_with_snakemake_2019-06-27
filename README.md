@@ -38,7 +38,7 @@ If Cedar is not working, one can follow along by running this locally as well. F
 1. Clone this workshop's repo: `git clone https://github.com/bmcconeghy/bioinformatics_pipeline_with_snakemake_2019-06-27.git`.
 2. Change to newly created directory: `cd bioinformatics_pipeline_with_snakemake_2019-06-27`.
 3. Add the bioconda and conda-forge channels: `conda config --add channels bioconda` and `conda --add channels conda-forge`.
-4. Use the environment file to download and install all necessary packages for this workshop into a conda environment: `conda create -f smk_542_env.yaml`. This may take a few minutes (total download size is ~265MB).
+4. Use the environment file to download and install all necessary packages for this workshop into a conda environment: `conda env create -f smk_542_env.yaml`. This may take a few minutes (total download size is ~265MB).
 4. a. If the previous step did not work, run: `conda create -n smk_542 snakemake=5.4.2 bwa=0.7.12 samtools=1.9 pysam=0.15.0 bcftools=1.9 graphviz=2.38.0 jinja2=2.10 networkx=2.1 matplotlib=2.2.3`
 5. Once the installation is complete, activate the environment: `conda activate smk_542`. You now have access to all the packages installed!
 6. Unzip the tarball: `tar -xzvf data.tar.gz`
@@ -85,3 +85,21 @@ rule bwa_map:
 6. Note that snakemake only proposes to create the output file `mapped_reads/B.bam` because we already created `A.bam` previously. This is because the output is newer than the input. You can trigger rerunning the alignment for `A.bam` by 'touching' it: `touch data/samples/A.fastq`.
 7. Try running  `snakemake -np mapped_reads/A.bam mapped_reads/B.bam` again. You'll see that it will now propose running both alignments.
 
+## Step 3: Sorting read alignments
+For downstream analyses, and in many cases, aligned reads need to be sorted. This can achieved with the **samtools** tool.
+1. Add another rule below the `bwa_map` rule, to sort the reads. Call it `samtools_sort`:
+```
+rule samtools_sort:
+    input:
+        "mapped_reads/{sample}.bam"
+    output:
+        "sorted_reads/{sample}.bam"
+    shell:
+        "samtools sort -T sorted_reads/{wildcards.sample} "
+        "-O bam {input} > {output}"
+```
+2. This rule will take any bam file from the `mapped_reads` directory and create a sorted version under `sorted_reads`. One great feature of snakemake is that it creates missing directories!
+3. The `-T` parameter allows you to specify a prefix, in this case, the `sorted_reads` directory.
+4. Try running snakemake, asking for the sorted version of B.bam: `snakemake -np sorted_reads/B.bam`. Notice how it knows it needs to run `bwa_map` first in order to create `mapped_reads/B.bam`?
+
+## Step 4: Indexing read alignments and visualizing the DAG of jobs
