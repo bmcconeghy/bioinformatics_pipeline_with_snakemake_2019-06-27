@@ -84,6 +84,29 @@ rule bwa_map:
 5. You can also specify multiple outputs: `snakemake -np mapped_reads/A.bam mapped_reads/B.bam`
 6. Note that snakemake only proposes to create the output file `mapped_reads/B.bam` because we already created `A.bam` previously. This is because the output is newer than the input. You can trigger rerunning the alignment for `A.bam` by 'touching' it: `touch data/samples/A.fastq`.
 7. Try running  `snakemake -np mapped_reads/A.bam mapped_reads/B.bam` again. You'll see that it will now propose running both alignments.
+8. One thing you'll notice is some output from BWA, like:
+```
+[M::bwa_idx_load_from_disk] read 0 ALT contigs
+[M::process] read 25000 sequences (2525000 bp)...
+[M::mem_process_seqs] Processed 25000 reads in 0.672 CPU sec, 0.670 real sec
+[main] Version: 0.7.12-r1039
+[main] CMD: bwa mem data/genome.fa data/samples/A.fastq
+[main] Real time: 0.790 sec; CPU: 0.719 sec
+```
+You can deal with this neatly by adding a `log` directive to the `bwa_map` rule:
+```
+rule bwa_map:
+    input:
+        "data/genome.fa",
+        "data/samples/{sample}.fastq"
+    output:
+        "mapped_reads/{sample}.bam"
+    log:
+        "log/bwa_map/{sample}.log"
+    shell:
+        "bwa mem {input} 2> {log} | samtools view -Sb - > {output}"
+```
+9. Now, when you actually run snakemake (without `-n`), the stderr messages are piped into the log file (for each sample requested).
 
 ## Step 3: Sorting read alignments
 For downstream analyses (and in many cases), aligned reads need to be sorted. This can achieved with the **samtools** tool.
@@ -171,5 +194,13 @@ plt.savefig(snakemake.output[0])
 6. You can also run R scripts this way as well, although the syntax is slightly different.
 
 ## Step 7: Adding a target rule
-
-1. 
+So far, we always executed the workflow by specifying a target file at the command line. Apart from filenames, Snakemake also accepts **rule names as targets** if the referred rule does not have wildcards.
+1. It is best practice to have a rule `all` at the top of the workflow which hass all typically desired target files as input files.
+2. In this specific case, we add the following to the top of the Snakefile:
+```
+rule all:
+    input:
+        "plots/quals.svg"
+```
+3. And of course, to test it, run: `snakemake -n`.
+4. 
