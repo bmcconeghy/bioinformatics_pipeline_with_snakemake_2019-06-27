@@ -63,10 +63,12 @@ rule bwa_map:
 6. When a workflow is executed, Snakemake tries to generate the given target files. These can be specified via the command line. Try running: `snakemake -np mapped_reads/A.bam`
 7. This produces the snakemake output as if it were run, but without actually running it; a so called 'dry-run'.
 8. Now, re-run the above command without the `-np` parameters: `snakemake mapped_reads/A.bam`
+9. The shell command invokes bwa mem with reference genome and reads, and pipes the output into samtools, which creates a compressed BAM file containing the alignments. The output of samtools is then piped into the output file defined by the rule.
+10. to generate the target files, snakemake applies the rules given in the Snakefile in a top-down way. For each input file of a job, Snakemake again (i.e. recursively) determines rules that can be applied to generate it. This yields a directed acyclic graph (DAG) of jobs where the edges represent dependencies.
 
 ## Step 2: Generalizing the mapping rule
-1. Snakemake allows for generalizations for the inputs and outputs by way of **wildcards**. These are denoted withing curly braces {}.
-2. We will now simply replace the `A` with `{sample}. So the resulting code will look like:
+1. Snakemake allows for generalizations for the inputs and outputs by way of **wildcards**. These are denoted within curly braces {}.
+2. We will now simply replace the `A` with `{sample}` in the Snakefile. So the resulting code will look like:
 ```
 rule bwa_map:
     input:
@@ -77,4 +79,9 @@ rule bwa_map:
     shell:
         "bwa mem {input} | samtools view -Sb - > {output}"
 ```
+3. Once snakemake determines that `{sample}` can be replaced with an appropriate value in the output file, it will propagate that value to all occurrences of `{sample}` in the input files, and thereby determine the necessary input for the resulting job.
+4. Try running snakemake with this edited Snakefile with `B.bam` as your requested output: `snakemake -np mapped_reads/B.bam`.
+5. You can also specify multiple outputs: `snakemake -np mapped_reads/A.bam mapped_reads/B.bam`
+6. Note that snakemake only proposes to create the output file `mapped_reads/B.bam` because we already created `A.bam` previously. This is because the output is newer than the input. You can trigger rerunning the alignment for `A.bam` by 'touching' it: `touch data/samples/A.fastq`.
+7. Try running  `snakemake -np mapped_reads/A.bam mapped_reads/B.bam` again. You'll see that it will now propose running both alignments.
 
