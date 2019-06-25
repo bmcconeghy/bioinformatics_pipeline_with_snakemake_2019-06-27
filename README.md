@@ -62,7 +62,7 @@ rule bwa_map:
 5. The above code is a basic version of a Snakemake rule. It has a name, inputs, ouptput, and a shell directive.
 6. When a workflow is executed, Snakemake tries to generate the given target files. These can be specified via the command line. Try running: `snakemake -np mapped_reads/A.bam`
 7. This produces the snakemake output as if it were run, but without actually running it; a so called 'dry-run'.
-8. Now, re-run the above command without the `-np` parameters: `snakemake mapped_reads/A.bam`
+8. Now, re-run the above command without the `-np` arguments: `snakemake mapped_reads/A.bam`
 9. The shell command invokes bwa mem with reference genome and reads, and pipes the output into samtools, which creates a compressed BAM file containing the alignments. The output of samtools is then piped into the output file defined by the rule.
 10. to generate the target files, snakemake applies the rules given in the Snakefile in a top-down way. For each input file of a job, Snakemake again (i.e. recursively) determines rules that can be applied to generate it. This yields a directed acyclic graph (DAG) of jobs where the edges represent dependencies.
 
@@ -86,7 +86,7 @@ rule bwa_map:
 7. Try running  `snakemake -np mapped_reads/A.bam mapped_reads/B.bam` again. You'll see that it will now propose running both alignments.
 
 ## Step 3: Sorting read alignments
-For downstream analyses, and in many cases, aligned reads need to be sorted. This can achieved with the **samtools** tool.
+For downstream analyses (and in many cases), aligned reads need to be sorted. This can achieved with the **samtools** tool.
 1. Add another rule below the `bwa_map` rule, to sort the reads. Call it `samtools_sort`:
 ```
 rule samtools_sort:
@@ -103,3 +103,18 @@ rule samtools_sort:
 4. Try running snakemake, asking for the sorted version of B.bam: `snakemake -np sorted_reads/B.bam`. Notice how it knows it needs to run `bwa_map` first in order to create `mapped_reads/B.bam`?
 
 ## Step 4: Indexing read alignments and visualizing the DAG of jobs
+Once again, we use samtools to index the sorted reads (for random access).
+1. Write a rule below your sorting rule. Call it `samtools_index`:
+```
+rule samtools_index:
+    input:
+        "sorted_reads/{sample}.bam"
+    output:
+        "sorted_reads/{sample}.bam.bai"
+    shell:
+        "samtools index {input}"
+```
+2. At this point in time, since we have 3 steps in our pipeline, now would be a great time to create a DAG to visualize what is happening in a graphical way: `snakemake --dag sorted_reads/{A,B}.bam.bai | dot -Tsvg > dag.svg`.
+3. The above command uses Graphviz's dot command to process the ouput from snakemake (using its `--dag` argument) into an svg file.
+4. Once you've run this command, you can open this file to take a look. It should look something like this:
+![alt text](https://github.com/ "DAG with 3 rules")
