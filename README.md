@@ -140,3 +140,6 @@ rule bcftools_call:
 4. Notice that this rule has **named** inputs and how they get used in the `shell` directive. Also, note that you can combine named and not named input and output files in the same rule (although the positional ones must come first; equivalent to python functions with keyword arguments).
 5. See if you can produce a DAG that is equivalent to this one:
 ![DAG with bcftools](https://github.com/bmcconeghy/bioinformatics_pipeline_with_snakemake_2019-06-27/blob/master/examples/dag_bcftools.svg)
+
+## Step 6: Custom scripts
+Usually, a workflow not only consists of invoking various tools, but also contains custom code to e.g. calculate summary statistics or create plots.
