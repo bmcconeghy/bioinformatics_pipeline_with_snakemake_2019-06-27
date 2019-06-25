@@ -117,4 +117,4 @@ rule samtools_index:
 2. At this point in time, since we have 3 steps in our pipeline, now would be a great time to create a DAG to visualize what is happening in a graphical way: `snakemake --dag sorted_reads/{A,B}.bam.bai | dot -Tsvg > dag.svg`.
 3. The above command uses Graphviz's dot command to process the ouput from snakemake (using its `--dag` argument) into an svg file.
 4. Once you've run this command, you can open this file to take a look. It should look something like this:
-![alt text](https://github.com/ "DAG with 3 rules")
+![alt text](https://github.com/bmcconeghy/bioinformatics_pipeline_with_snakemake_2019-06-27/examples/dag.svg "DAG with 3 rules")
