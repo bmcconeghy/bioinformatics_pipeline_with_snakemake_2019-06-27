@@ -118,3 +118,4 @@ rule samtools_index:
 3. The above command uses Graphviz's dot command to process the ouput from snakemake (using its `--dag` argument) into an svg file.
 4. Once you've run this command, you can open this file to take a look. It should look something like this:
 [[https://github.com/bmcconeghy/bioinformatics_pipeline_with_snakemake_2019-06-27/blob/master/examples/dag.svg|alt="DAG with 3 rules"]]
+[[https://github.com/username/repository/blob/master/img/octocat.png|alt=octocat]]
