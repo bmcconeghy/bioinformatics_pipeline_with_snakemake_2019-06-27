@@ -227,7 +227,7 @@ rule all:
 ```
 3. And of course, to test it, run: `snakemake -n`. Note how you do not have to specify a target explicitly as this is done within the Snakefile.
 
-## Entire workflow
+# Entire workflow
 Your Snakefile (and thus, workflow) should look like this:
 ```
 SAMPLES = ["A", "B"]
@@ -317,3 +317,14 @@ rule bwa_map:
 10. Another thing to note, if you increase the total allocated cores to, say, 10. The `bwa_map` rule will still only use 4; this leaves the remaining 6 cores that were allocated to run other jobs (if the environment you are working in has that many cores).
 
 ## Step 2: Config files
+1. So far, we specified the samples to consider in a Python list within the Snakefile.
+2. However, often you want your workflow to be customizable, so that it can be easily adapted to new data.
+3. For this purpose, Snakemake provides a config file mechanism.
+4. Config files can be written in JSON or YAML, and loaded with the `configfile` directive.
+5. Let's add the following line to the top of our Snakefile: `configfile: "config.yaml"`.
+6. Additionally, let's create the config file and write this code in it:
+```YAML
+samples:
+    A: data/samples/A.fastq
+    B: data/samples/B.fastq
+```
