@@ -229,7 +229,7 @@ rule all:
 
 # Entire workflow
 Your Snakefile (and thus, workflow) should look like this:
-```
+```snakemake
 SAMPLES = ["A", "B"]
 
 
