@@ -294,3 +294,26 @@ rule plot_quals:
 ## Step 1: Number of threads
 1. For some tools, the number of threads can be specified to increase the speed of computation.
 2. You can specify a directive, `threads`, that you can use 
+3. One of the tools we used already (BWA) has the ability to multi-thread. **If running locally, the maximum number of threads will be the number of cores your laptop has.**
+4. Let's modify the `bwa_map` rule:
+```
+rule bwa_map:
+    input:
+        "data/genome.fa",
+        "data/samples/{sample}.fastq"
+    output:
+        "mapped_reads/{sample}.bam"
+    threads: 4
+    log:
+        "log/bwa_map/{sample}.log"
+    shell:
+        "bwa mem -t {threads} {input} | samtools view -Sb - > {output}"
+```
+5. When no `threads` directive is given, 1 thread is assumed.
+6. When a workflow is executed, the number of threads the jobs need is considered by the **Snakemake scheduler**.
+7. The scheduler ensures the sum of the threads of all running jobs does not exceed a given number of available CPU cores. This number can be given with the --cores command line argument (per default, Snakemake uses only 1 CPU core).
+8. So, if you run: `snakemake -np mapped_reads/A.bam`, you'll notice the thread count will still be 1.
+9. But, if you run `snakemake --cores 4 -np mapped_reads/A.bam`, the threads will increase to 4.
+10. Another thing to note, if you increase the total allocated cores to, say, 10. The `bwa_map` rule will still only use 4; this leaves the remaining 6 cores that were allocated to run other jobs (if the environment you are working in has that many cores).
+
+## Step 2: Config files
