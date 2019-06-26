@@ -14,6 +14,7 @@ Software installed in conda environment:
 * SAMtools 1.9
 * Pysam 0.15.0
 * BCFtools 1.9
+* FastQC 0.11.8
 * Graphviz 2.38.0
 * Jinja2 2.10
 * NetworkX 2.1
@@ -44,11 +45,7 @@ If Cedar is not working, one can follow along by running this locally as well. F
 6. Unzip the tarball: `tar -xzvf data.tar.gz`
 7. The data we will be using is stored in the `data` directory.
 
-## Step 1a: QC of reads
-It is always a good idea to take a look at the quality of the reads you will be analyzing. A common tool to do so is FastQC.
-1.
-
-## Step 1b: Mapping reads
+## Step 1: Mapping reads
 1. We will begin by writing a rule to map Illumina reads (single-end) to a reference genome.
 2. To do so, we will use the widely used tool, BWA, specifically its MEM subcommand.
 3. In the working directory (snakmake-tutorial), create a new file called `Snakefile`. I like using VS Code as an editor, but you may use what you wish. On UNIX servers though, `vim` is ubiquitous.
@@ -112,7 +109,29 @@ rule bwa_map:
 ```
 9. Now, when you actually run snakemake (without `-n`), the stderr messages are piped into the log file (for each sample requested).
 
-## Step 3: Sorting read alignments
+## Step 3: QC of reads
+It is always a good idea to take a look at the quality of the reads you will be analyzing. A common tool to do so is FastQC. Normally, this would be the first step of a bioinformatics analysis pipeline that deals with NGS reads, but I wanted to go through some of Snakemake's concepts first, so it's listed here as step 3.
+1. Let's put this rule at the top of the Snakefile:
+```
+rule fastqc:
+    input:
+        "data/samples/{sample}.fastq"
+    output:
+        "fastqc/{sample}_fastqc.html",
+        "fastqc/{sample}_fastqc.zip"
+    params:
+        "--outdir fastqc"
+    log:
+        "log/fastqc/{sample}.log"
+    shell:
+        "fastqc {params} {input} &> {log}"
+```
+2. This rule has many of the directives we have seen so far, as well as the `params` one.
+3. The `params` directive is essentially a way to make your code more readable and flexible for tweaking down the road.
+4. Note how `output` does not even have to be specified in the `shell` directive.
+5. Try creating the fastqc output for the `A.fastq` sample. Hint: You only need to specify one of the outputs as both will be created regardless (this is how the tool runs by default).
+
+## Step 4: Sorting read alignments
 For downstream analyses (and in many cases), aligned reads need to be sorted. This can achieved with the **samtools** tool.
 1. Add another rule below the `bwa_map` rule, to sort the reads. Call it `samtools_sort`:
 ```
@@ -129,7 +148,7 @@ rule samtools_sort:
 3. The `-T` parameter allows you to specify a prefix, in this case, the `sorted_reads` directory.
 4. Try running snakemake, asking for the sorted version of B.bam: `snakemake -np sorted_reads/B.bam`. Notice how it knows it needs to run `bwa_map` first in order to create `mapped_reads/B.bam`?
 
-## Step 4: Indexing read alignments and visualizing the DAG of jobs
+## Step 5: Indexing read alignments and visualizing the DAG of jobs
 Once again, we use samtools to index the sorted reads (for random access).
 1. Write a rule below your sorting rule. Call it `samtools_index`:
 ```
@@ -147,7 +166,7 @@ rule samtools_index:
 ![DAG with 3 rules](https://github.com/bmcconeghy/bioinformatics_pipeline_with_snakemake_2019-06-27/blob/master/examples/dag_3rules.svg)
 5. Notice that samples for which rules have been run have a dotted line as their outline.
 
-## Step 5: Calling genomic variants
+## Step 6: Calling genomic variants
 This next step will aggregate the mapped reads from all samples and jointly call genomic variants on them. This will use samtools and bcftools.
 1. We will use a built in function of snakemake called `expand`, in conjunction with a list of samples (instead of generalized wilcards). This is similar to the functionality of formatted strings in python.
 2. At the very top of your Snakefile, add the list: `SAMPLES = ["A", "B"]`.
@@ -168,7 +187,7 @@ rule bcftools_call:
 5. See if you can produce a DAG that is equivalent to this one:
 ![DAG with bcftools](https://github.com/bmcconeghy/bioinformatics_pipeline_with_snakemake_2019-06-27/blob/master/examples/dag_bcftools.svg)
 
-## Step 6: Custom scripts
+## Step 7: Custom scripts
 Usually, a workflow not only consists of invoking various tools, but also contains custom code to e.g. calculate summary statistics or create plots. Although snakemake allows you to run python code directly with the `run` directive (instead of `shell`), it is  usually reasonable to move such logic into separate scripts. For this, we will use the `script` directive.
 1. Add the following rule to your Snakefile:
 ```
@@ -197,7 +216,7 @@ plt.savefig(snakemake.output[0])
 5. Although there are other strategies to invoke separate scripts from your workflow (e.g., invoking them via shell commands), the benefit of this is obvious: the script logic is separated from the workflow logic (and can be even shared between workflows), but boilerplate code like the parsing of command line arguments is unnecessary.
 6. You can also run R scripts this way as well, although the syntax is slightly different.
 
-## Step 7: Adding a target rule
+## Step 8: Adding a target rule
 So far, we always executed the workflow by specifying a target file at the command line. Apart from filenames, Snakemake also accepts **rule names as targets** if the referred rule does not have wildcards.
 1. It is best practice to have a rule `all` at the top of the workflow which hass all typically desired target files as input files.
 2. In this specific case, we add the following to the top of the Snakefile:
