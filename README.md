@@ -38,9 +38,8 @@ If Cedar is not working, one can follow along by running this locally as well. F
 ## Setting up snakemake
 1. Clone this workshop's repo: `git clone https://github.com/bmcconeghy/bioinformatics_pipeline_with_snakemake_2019-06-27.git`.
 2. Change to newly created directory: `cd bioinformatics_pipeline_with_snakemake_2019-06-27`.
-3. Add the bioconda and conda-forge channels: `conda config --add channels bioconda` and `conda --add channels conda-forge`.
-4. Use the environment file to download and install all necessary packages for this workshop into a conda environment: `conda env create -f smk_542_env.yaml`. This may take a few minutes (total download size is ~265MB).
-4. a. If the previous step did not work, run: `conda create -n smk_542 snakemake=5.4.2 bwa=0.7.12 samtools=1.9 pysam=0.15.0 bcftools=1.9 fastqc=0.11.8 graphviz=2.38.0 jinja2=2.10 networkx=2.1 matplotlib=2.2.3`
+3. Use the environment file to download and install all necessary packages for this workshop into a conda environment: `conda env create -f smk_542_env.yaml`. This may take a few minutes (total download size is ~265MB).
+4. If the previous step did not work, add the bioconda and conda-forge channels: `conda config --add channels bioconda` and `conda --add channels conda-forge` and run: `conda create -n smk_542 snakemake=5.4.2 bwa=0.7.12 samtools=1.9 pysam=0.15.0 bcftools=1.9 fastqc=0.11.8 graphviz=2.38.0 jinja2=2.10 networkx=2.1 matplotlib=2.2.3`
 5. Once the installation is complete, activate the environment: `conda activate smk_542`. You now have access to all the packages installed!
 6. Unzip the tarball: `tar -xzvf data.tar.gz`
 7. The data we will be using is stored in the `data` directory.
@@ -344,3 +343,10 @@ rule bcftools_call:
 8. Test this out to see the workflow is still functioning.
 
 ## Step 3: Input functions
+1. Since we have stored the path to the FASTQ files in the config file, we can also generalize the rule bwa_map to use these paths.
+2. This case is different to the rule bcftools_call we modified above. To understand this, it is important to know that Snakemake workflows are executed in three phases:
+*In the initialization phase, the workflow is parsed and all rules are instantiated.
+*In the DAG phase, the DAG of jobs is built by filling wildcards and matching input files to output files.
+*In the scheduling phase, the DAG of jobs is executed.
+
+ 
