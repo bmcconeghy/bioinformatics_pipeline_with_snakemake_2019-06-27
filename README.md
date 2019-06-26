@@ -39,12 +39,16 @@ If Cedar is not working, one can follow along by running this locally as well. F
 2. Change to newly created directory: `cd bioinformatics_pipeline_with_snakemake_2019-06-27`.
 3. Add the bioconda and conda-forge channels: `conda config --add channels bioconda` and `conda --add channels conda-forge`.
 4. Use the environment file to download and install all necessary packages for this workshop into a conda environment: `conda env create -f smk_542_env.yaml`. This may take a few minutes (total download size is ~265MB).
-4. a. If the previous step did not work, run: `conda create -n smk_542 snakemake=5.4.2 bwa=0.7.12 samtools=1.9 pysam=0.15.0 bcftools=1.9 graphviz=2.38.0 jinja2=2.10 networkx=2.1 matplotlib=2.2.3`
+4. a. If the previous step did not work, run: `conda create -n smk_542 snakemake=5.4.2 bwa=0.7.12 samtools=1.9 pysam=0.15.0 bcftools=1.9 fastqc=0.11.8 graphviz=2.38.0 jinja2=2.10 networkx=2.1 matplotlib=2.2.3`
 5. Once the installation is complete, activate the environment: `conda activate smk_542`. You now have access to all the packages installed!
 6. Unzip the tarball: `tar -xzvf data.tar.gz`
 7. The data we will be using is stored in the `data` directory.
 
-## Step 1: Mapping reads
+## Step 1a: QC of reads
+It is always a good idea to take a look at the quality of the reads you will be analyzing. A common tool to do so is FastQC.
+1.
+
+## Step 1b: Mapping reads
 1. We will begin by writing a rule to map Illumina reads (single-end) to a reference genome.
 2. To do so, we will use the widely used tool, BWA, specifically its MEM subcommand.
 3. In the working directory (snakmake-tutorial), create a new file called `Snakefile`. I like using VS Code as an editor, but you may use what you wish. On UNIX servers though, `vim` is ubiquitous.
