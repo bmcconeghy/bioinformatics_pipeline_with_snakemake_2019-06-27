@@ -156,5 +156,5 @@ dependencies:
   - yarl=1.3.0=py36h14c3975_1000
   - zlib=1.2.11=h14c3975_1004
   - zstd=1.4.0=h3b9ef0a_0
-prefix: /home/$USER/miniconda3/envs/smk_542
+prefix: /home/bmcc89/miniconda3/envs/smk_542
 
