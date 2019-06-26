@@ -32,7 +32,9 @@ dependencies:
   - docutils=0.14=py36_1001
   - dropbox=9.4.0=py_0
   - expat=2.2.5=he1b5a44_1003
+  - fastqc=0.11.8=1
   - filechunkio=1.8=py_2
+  - font-ttf-dejavu-sans-mono=2.37=h6964260_0
   - fontconfig=2.13.1=he4413a7_1000
   - freetype=2.10.0=he983fc9_0
   - ftputil=3.4=py_0
@@ -89,11 +91,13 @@ dependencies:
   - networkx=2.1=py_1
   - numpy=1.16.4=py36h95a1406_0
   - openblas=0.3.5=ha44fe06_0
+  - openjdk=11.0.1=h516909a_1016
   - openssl=1.1.1b=h14c3975_1
   - pandas=0.24.2=py36hb3f55d8_0
   - pango=1.40.14=hf0c64fd_1003
   - paramiko=2.5.0=py36_0
   - pcre=8.43=he6710b0_0
+  - perl=5.26.2=h516909a_1006
   - pip=19.1.1=py36_0
   - pixman=0.34.0=h14c3975_1003
   - prettytable=0.7.2=py_2
