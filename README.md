@@ -123,7 +123,7 @@ rule samtools_sort:
 ```
 2. This rule will take any bam file from the `mapped_reads` directory and create a sorted version under `sorted_reads`. One great feature of snakemake is that it creates missing directories!
 3. The `-T` parameter allows you to specify a prefix, in this case, the `sorted_reads` directory.
-4. Try running snakemake, asking for the sorted version of B.bam: `snakemake -np sorted_reads/B.bam`. Notice how it knows it needs to run `bwa_map` first in order to create `mapped_reads/B.bam`?
+4. Try running snakemake, asking for the sorted version of B.bam: `snakemake -np sorted_reads/B.bam`. Notice how snakemake knows it needs to run `bwa_map` first in order to create `mapped_reads/B.bam`?
 
 ## Step 4: Indexing read alignments and visualizing the DAG of jobs
 Once again, we use samtools to index the sorted reads (for random access).
@@ -202,5 +202,72 @@ rule all:
     input:
         "plots/quals.svg"
 ```
-3. And of course, to test it, run: `snakemake -n`.
-4. 
+3. And of course, to test it, run: `snakemake -n`. Note how you do not have to specify a target explicitly as this is done within the Snakefile.
+
+## Entire workflow
+Your Snakefile (and thus, workflow) should look like this:
+```
+SAMPLES = ["A", "B"]
+
+
+rule all:
+    input:
+        "plots/quals.svg"
+
+
+rule bwa_map:
+    input:
+        "data/genome.fa",
+        "data/samples/{sample}.fastq"
+    output:
+        "mapped_reads/{sample}.bam"
+    log:
+        "log/bwa_map/{sample}.log"
+    shell:
+        "bwa mem {input} 2> {log} | samtools view -Sb - > {output}"
+
+
+rule samtools_sort:
+    input:
+        "mapped_reads/{sample}.bam"
+    output:
+        "sorted_reads/{sample}.bam"
+    shell:
+        "samtools sort -T sorted_reads/{wildcards.sample} "
+        "-O bam {input} > {output}"
+
+
+rule samtools_index:
+    input:
+        "sorted_reads/{sample}.bam"
+    output:
+        "sorted_reads/{sample}.bam.bai"
+    shell:
+        "samtools index {input}"
+
+
+rule bcftools_call:
+    input:
+        fa="data/genome.fa",
+        bam=expand("sorted_reads/{sample}.bam", sample=SAMPLES),
+        bai=expand("sorted_reads/{sample}.bam.bai", sample=SAMPLES)
+    output:
+        "calls/all.vcf"
+    shell:
+        "samtools mpileup -g -f {input.fa} {input.bam} | "
+        "bcftools call -mv - > {output}"
+
+
+rule plot_quals:
+    input:
+        "calls/all.vcf"
+    output:
+        "plots/quals.svg"
+    script:
+        "scripts/plot-quals.py"
+```
+
+# Advanced
+## Step 1: Number of threads
+1. For some tools, the number of threads can be specified to increase the speed of computation.
+2. You can specify a directive, `threads`, that you can use 
