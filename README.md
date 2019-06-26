@@ -227,9 +227,9 @@ rule all:
 ```
 3. And of course, to test it, run: `snakemake -n`. Note how you do not have to specify a target explicitly as this is done within the Snakefile.
 
-# Entire workflow
+## Entire workflow
 Your Snakefile (and thus, workflow) should look like this:
-```python
+```
 SAMPLES = ["A", "B"]
 
 
@@ -290,7 +290,7 @@ rule plot_quals:
         "scripts/plot-quals.py"
 ```
 
-# Advanced
+## Advanced Snakemake usage
 ## Step 1: Number of threads
 1. For some tools, the number of threads can be specified to increase the speed of computation.
 2. You can specify a directive, `threads`, that you can use 
@@ -322,9 +322,25 @@ rule bwa_map:
 3. For this purpose, Snakemake provides a config file mechanism.
 4. Config files can be written in JSON or YAML, and loaded with the `configfile` directive.
 5. Let's add the following line to the top of our Snakefile: `configfile: "config.yaml"`.
-6. Additionally, let's create the config file and write this code in it:
+6. Additionally, let's create the config file (aptly named `config.yaml`) and write this code in it:
 ```YAML
 samples:
     A: data/samples/A.fastq
     B: data/samples/B.fastq
 ```
+7. We can then remove the SAMPLES list, and re-write the `bcftools_call` rule:
+```
+rule bcftools_call:
+    input:
+        fa="data/genome.fa",
+        bam=expand("sorted_reads/{sample}.bam", sample=config["samples"]),
+        bai=expand("sorted_reads/{sample}.bam.bai", sample=config["samples"])
+    output:
+        "calls/all.vcf"
+    shell:
+        "samtools mpileup -g -f {input.fa} {input.bam} | "
+        "bcftools call -mv - > {output}"
+```
+8. Test this out to see the workflow is still functioning.
+
+## Step 3: Input functions
