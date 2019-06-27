@@ -3,7 +3,7 @@ Introduction to snakemake for processing biological sequencing data.
 ## About the lesson
 This course is an introduction to using the Snakemake workflow management system to create reproducible and scalable bioinformatics pipelines. Workflows are written in Python and can be seamlessly scaled to server, cluster, grid and cloud environments, without the need to modify the workflow definition. In this course, we will be writing a Snakemake pipeline that takes DNA reads as input and runs basic QC on them, maps them to a genome of interest, sorts them, indexes them, and calls genomic variants.
 
-Most of this course is based on the [snakemake tutorial](https://snakemake.readthedocs.io/en/stable/tutorial/tutorial.html) found on snakemake's readthedocs page.
+Most of this course is based on Johannes Köster's (Dev lead for Snakemake) [tutorial](https://snakemake.readthedocs.io/en/stable/tutorial/tutorial.html) found on Snakemake's readthedocs page.
 
 ## Prerequisites
 Familiarity with Python, Bash, and some bioinformatics tools (cutadapt, bwa, samtools, etc.).
@@ -38,9 +38,8 @@ If Cedar is not working, one can follow along by running this locally as well. F
 ## Setting up snakemake
 1. Clone this workshop's repo: `git clone https://github.com/bmcconeghy/bioinformatics_pipeline_with_snakemake_2019-06-27.git`.
 2. Change to newly created directory: `cd bioinformatics_pipeline_with_snakemake_2019-06-27`.
-3. Add the bioconda and conda-forge channels: `conda config --add channels bioconda` and `conda --add channels conda-forge`.
-4. Use the environment file to download and install all necessary packages for this workshop into a conda environment: `conda env create -f smk_542_env.yaml`. This may take a few minutes (total download size is ~265MB).
-4. a. If the previous step did not work, run: `conda create -n smk_542 snakemake=5.4.2 bwa=0.7.12 samtools=1.9 pysam=0.15.0 bcftools=1.9 fastqc=0.11.8 graphviz=2.38.0 jinja2=2.10 networkx=2.1 matplotlib=2.2.3`
+3. Use the environment file to download and install all necessary packages for this workshop into a conda environment: `conda env create -f smk_542_env.yaml`. This may take a few minutes (total download size is ~265MB).
+4. If the previous step did not work, add the bioconda and conda-forge channels: `conda config --add channels bioconda` and `conda --add channels conda-forge` and run: `conda create -n smk_542 snakemake=5.4.2 bwa=0.7.12 samtools=1.9 pysam=0.15.0 bcftools=1.9 fastqc=0.11.8 graphviz=2.38.0 jinja2=2.10 networkx=2.1 matplotlib=2.2.3`
 5. Once the installation is complete, activate the environment: `conda activate smk_542`. You now have access to all the packages installed!
 6. Unzip the tarball: `tar -xzvf data.tar.gz`
 7. The data we will be using is stored in the `data` directory.
@@ -105,7 +104,7 @@ rule bwa_map:
     log:
         "log/bwa_map/{sample}.log"
     shell:
-        "bwa mem {input} 2> {log} | samtools view -Sb - > {output}"
+        "(bwa mem {input} | samtools view -Sb - > {output}) 2> {log}"
 ```
 9. Now, when you actually run snakemake (without `-n`), the stderr messages are piped into the log file (for each sample requested).
 
@@ -290,7 +289,90 @@ rule plot_quals:
         "scripts/plot-quals.py"
 ```
 
-# Advanced
+## Advanced Snakemake usage
 ## Step 1: Number of threads
 1. For some tools, the number of threads can be specified to increase the speed of computation.
 2. You can specify a directive, `threads`, that you can use 
+3. One of the tools we used already (BWA) has the ability to multi-thread. **If running locally, the maximum number of threads will be the number of cores your laptop has.**
+4. Let's modify the `bwa_map` rule:
+```
+rule bwa_map:
+    input:
+        "data/genome.fa",
+        "data/samples/{sample}.fastq"
+    output:
+        "mapped_reads/{sample}.bam"
+    threads: 4
+    log:
+        "log/bwa_map/{sample}.log"
+    shell:
+        "bwa mem -t {threads} {input} | samtools view -Sb - > {output}"
+```
+5. When no `threads` directive is given, 1 thread is assumed.
+6. When a workflow is executed, the number of threads the jobs need is considered by the **Snakemake scheduler**.
+7. The scheduler ensures the sum of the threads of all running jobs does not exceed a given number of available CPU cores. This number can be given with the --cores command line argument (per default, Snakemake uses only 1 CPU core).
+8. So, if you run: `snakemake -np mapped_reads/A.bam`, you'll notice the thread count will still be 1.
+9. But, if you run `snakemake --cores 4 -np mapped_reads/A.bam`, the threads will increase to 4.
+10. Another thing to note, if you increase the total allocated cores to, say, 10. The `bwa_map` rule will still only use 4; this leaves the remaining 6 cores that were allocated to run other jobs (if the environment you are working in has that many cores).
+
+## Step 2: Config files
+1. So far, we specified the samples to consider in a Python list within the Snakefile.
+2. However, often you want your workflow to be customizable, so that it can be easily adapted to new data.
+3. For this purpose, Snakemake provides a config file mechanism.
+4. Config files can be written in JSON or YAML, and loaded with the `configfile` directive.
+5. Let's add the following line to the top of our Snakefile: `configfile: "config.yaml"` and remove the SAMPLES list.
+6. Additionally, let's create the config file (aptly named `config.yaml`) and write this code in it:
+```YAML
+samples:
+    A: data/samples/A.fastq
+    B: data/samples/B.fastq
+```
+7. We can then remove the SAMPLES list, and re-write the `bcftools_call` rule:
+```
+rule bcftools_call:
+    input:
+        fa="data/genome.fa",
+        bam=expand("sorted_reads/{sample}.bam", sample=config["samples"]),
+        bai=expand("sorted_reads/{sample}.bam.bai", sample=config["samples"])
+    output:
+        "calls/all.vcf"
+    shell:
+        "samtools mpileup -g -f {input.fa} {input.bam} | "
+        "bcftools call -mv - > {output}"
+```
+8. Test this out to see the workflow is still functioning.
+
+## Step 3: Input functions
+1. Since we have stored the path to the FASTQ files in the config file, we can also generalize the rule bwa_map to use these paths.
+2. This case is different to the rule bcftools_call we modified above. To understand this, it is important to know that Snakemake workflows are executed in three phases:
+* In the initialization phase, the workflow is parsed and all rules are instantiated.
+* In the DAG phase, the DAG of jobs is built by filling wildcards and matching input files to output files.
+* In the scheduling phase, the DAG of jobs is executed.
+3. The expand functions in the list of input files of the rule bcftools_call are executed during the initialization phase. In this phase, we don’t know about jobs, wildcard values and rule dependencies.
+5. Instead, we need to defer the determination of input files to the DAG phase. This can be achieved by specifying an input function instead of a string as inside of the input directive. For the rule bwa_map this works as follows:
+```
+rule bwa_map:
+    input:
+        "data/genome.fa",
+        lambda wildcards: config["samples"][wildcards.sample]
+    output:
+        "mapped_reads/{sample}.bam"
+    threads: 8
+    shell:
+        "bwa mem -t {threads} {input} | samtools view -Sb - > {output}"
+```
+6. This rule makes use of a lambda expression, essentially a quick way to create a function without defining it explicitly like you would normally.
+7. Input functions take as single argument a wildcards object, that allows access to the wildcards values via attributes (here `wildcards.sample`).
+8. Input functions have to return a string or a list of strings, that are interpreted as paths to input files (here, we return the path that is stored for the sample in the config file).
+9. Input functions are evaluated once the wildcard values of a job are determined.
+10. Try adding the `C.fastq` sample (which is found alongside the others) to the config file and see what happens when you re-run it.
+11. Depending on what files have already been created, you may be greeted with:
+```
+Building DAG of jobs...
+Nothing to be done.
+```
+This is fine, but you have to tell snakemake to forcibly rerun the pipeline (overwriting the previous `all.vcf` file generated):
+```
+snakemake -n --reason --forcerun bcftools_call
+```
+12. This shows another beautiful aspect of snakemake: you can force it to rerun a certain step, but it knows which samples have already been run, so doesn't waste time re-generating the sample-specific files (like mapped and sorted reads).
