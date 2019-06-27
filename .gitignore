@@ -1,2 +1,3 @@
-Snakefile
-data/
+.gitignore
+./Snakefile
+./data/
