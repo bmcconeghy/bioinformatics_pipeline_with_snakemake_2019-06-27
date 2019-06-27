@@ -1,0 +1,111 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	1	bcftools_call
+	2	bwa_map
+	1	plot_quals
+	2	samtools_index
+	2	samtools_sort
+	9
+
+[Wed Jun 26 16:52:02 2019]
+rule bwa_map:
+    input: data/genome.fa, data/samples/B.fastq
+    output: mapped_reads/B.bam
+    log: log/bwa_map/B.log
+    jobid: 8
+    wildcards: sample=B
+
+[Wed Jun 26 16:52:03 2019]
+Finished job 8.
+1 of 9 steps (11%) done
+
+[Wed Jun 26 16:52:03 2019]
+rule bwa_map:
+    input: data/genome.fa, data/samples/A.fastq
+    output: mapped_reads/A.bam
+    log: log/bwa_map/A.log
+    jobid: 7
+    wildcards: sample=A
+
+[Wed Jun 26 16:52:04 2019]
+Finished job 7.
+2 of 9 steps (22%) done
+
+[Wed Jun 26 16:52:04 2019]
+rule samtools_sort:
+    input: mapped_reads/B.bam
+    output: sorted_reads/B.bam
+    jobid: 4
+    wildcards: sample=B
+
+[Wed Jun 26 16:52:04 2019]
+Finished job 4.
+3 of 9 steps (33%) done
+
+[Wed Jun 26 16:52:04 2019]
+rule samtools_sort:
+    input: mapped_reads/A.bam
+    output: sorted_reads/A.bam
+    jobid: 3
+    wildcards: sample=A
+
+[Wed Jun 26 16:52:04 2019]
+Finished job 3.
+4 of 9 steps (44%) done
+
+[Wed Jun 26 16:52:04 2019]
+rule samtools_index:
+    input: sorted_reads/B.bam
+    output: sorted_reads/B.bam.bai
+    jobid: 6
+    wildcards: sample=B
+
+[Wed Jun 26 16:52:04 2019]
+Finished job 6.
+5 of 9 steps (56%) done
+
+[Wed Jun 26 16:52:04 2019]
+rule samtools_index:
+    input: sorted_reads/A.bam
+    output: sorted_reads/A.bam.bai
+    jobid: 5
+    wildcards: sample=A
+
+[Wed Jun 26 16:52:04 2019]
+Finished job 5.
+6 of 9 steps (67%) done
+
+[Wed Jun 26 16:52:04 2019]
+rule bcftools_call:
+    input: data/genome.fa, sorted_reads/A.bam, sorted_reads/B.bam, sorted_reads/A.bam.bai, sorted_reads/B.bam.bai
+    output: calls/all.vcf
+    jobid: 2
+
+[Wed Jun 26 16:52:05 2019]
+Finished job 2.
+7 of 9 steps (78%) done
+
+[Wed Jun 26 16:52:05 2019]
+rule plot_quals:
+    input: calls/all.vcf
+    output: plots/quals.svg
+    jobid: 1
+
+[Wed Jun 26 16:52:05 2019]
+Finished job 1.
+8 of 9 steps (89%) done
+
+[Wed Jun 26 16:52:05 2019]
+localrule all:
+    input: plots/quals.svg
+    jobid: 0
+
+[Wed Jun 26 16:52:05 2019]
+Finished job 0.
+9 of 9 steps (100%) done
+Complete log: /home/bmcc89/bioinformatics_pipeline_with_snakemake_2019-06-27/.snakemake/log/2019-06-26T165202.790396.snakemake.log

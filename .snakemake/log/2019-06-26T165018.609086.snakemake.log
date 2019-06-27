@@ -1,0 +1,3 @@
+WorkflowError in line 1 of /home/bmcc89/bioinformatics_pipeline_with_snakemake_2019-06-27/Snakefile:
+Config file configfile.yaml not found.
+  File "/home/bmcc89/bioinformatics_pipeline_with_snakemake_2019-06-27/Snakefile", line 1, in <module>

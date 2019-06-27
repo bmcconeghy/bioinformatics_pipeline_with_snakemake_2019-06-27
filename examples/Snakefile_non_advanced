@@ -13,7 +13,7 @@ rule bwa_map:
     output:
         "mapped_reads/{sample}.bam"
     log:
-        "log/bwa_map/{sample}.log"
+        "logs/bwa_mem/{sample}.log"
     shell:
         "(bwa mem {input} | samtools view -Sb - > {output}) 2> {log}"
 
